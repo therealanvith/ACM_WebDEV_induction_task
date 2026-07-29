@@ -1,28 +1,47 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { PushNotificationButton } from "./push-notification-button";
 import { ThemeToggle } from "./theme-toggle";
 import { LogOut } from "lucide-react";
 
 export function Navbar() {
+  const pathname = usePathname();
   const { data: session, status } = useSession();
   const isModerator = session?.user?.role === "MODERATOR";
+
+  const isAllItemsActive = pathname === "/";
+  const isAdminActive = pathname?.startsWith("/admin");
 
   return (
     <header className="bg-background text-primary font-label-md text-label-md w-full sticky top-0 border-b border-outline/30 z-50">
       <div className="flex justify-between items-center px-4 sm:px-gutter h-16 w-full max-w-[1280px] mx-auto">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="font-serif text-2xl uppercase tracking-tighter text-primary">
+        <div className="flex items-center gap-4 sm:gap-6 h-full">
+          <Link href="/" className="font-serif text-xl sm:text-2xl uppercase tracking-tighter text-primary">
             Campus Found
           </Link>
-          <div className="hidden md:flex gap-6 h-full items-center pl-6 border-l border-outline/30">
-            <Link href="/" className="text-primary font-bold border-b-2 border-primary pb-1 h-full flex items-center hover:bg-surface-container-high px-2">
+          <div className="flex gap-4 sm:gap-6 h-full items-center pl-4 sm:pl-6 border-l border-outline/30">
+            <Link
+              href="/"
+              className={`h-full flex items-center px-1 sm:px-2 border-b-2 transition-colors ${
+                isAllItemsActive
+                  ? "text-primary font-bold border-primary"
+                  : "text-primary/70 hover:text-primary border-transparent"
+              }`}
+            >
               All Items
             </Link>
             {isModerator && (
-              <Link href="/admin" className="text-on-surface-variant h-full flex items-center hover:bg-surface-container-high px-2">
+              <Link
+                href="/admin"
+                className={`h-full flex items-center px-1 sm:px-2 border-b-2 transition-colors ${
+                  isAdminActive
+                    ? "text-primary font-bold border-primary"
+                    : "text-primary/70 hover:text-primary border-transparent"
+                }`}
+              >
                 Admin Board
               </Link>
             )}
