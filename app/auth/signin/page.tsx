@@ -52,10 +52,10 @@ function SignInContent() {
               </div>
               <div>
                 <div className="font-label-md text-xs text-primary uppercase font-bold mb-1">
-                  Claim what's yours
+                  Claim what&apos;s yours
                 </div>
                 <div className="font-body text-xs text-on-surface-variant leading-relaxed">
-                  Only you can confirm it's your item.
+                  Only you can confirm it&apos;s your item.
                 </div>
               </div>
             </div>
