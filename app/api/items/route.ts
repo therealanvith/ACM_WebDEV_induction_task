@@ -48,6 +48,65 @@ export async function GET(req: Request) {
   }
 }
 
+function isLikelyImageUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+    const path = parsed.pathname.toLowerCase();
+    return /\.(jpg|jpeg|png|gif|webp|avif|svg)$/.test(path);
+  } catch {
+    return false;
+  }
+}
+
+async function validateImageUrlServer(url: string): Promise<boolean> {
+  try {
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+  } catch {
+    return false;
+  }
+
+  // 1. Fast-path: known image extension
+  if (isLikelyImageUrl(url)) {
+    return true;
+  }
+
+  // 2. Network check via HEAD, fallback to GET range 0-0
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+
+    let res = await fetch(url, {
+      method: "HEAD",
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "image/*,*/*;q=0.8",
+      },
+    });
+
+    let contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType) {
+      res = await fetch(url, {
+        method: "GET",
+        signal: controller.signal,
+        headers: {
+          Range: "bytes=0-0",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "image/*,*/*;q=0.8",
+        },
+      });
+      contentType = res.headers.get("content-type");
+    }
+
+    clearTimeout(timeout);
+    return contentType ? contentType.startsWith("image/") : false;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: Request) {
   const session = await getSession();
 
@@ -78,6 +137,17 @@ export async function POST(req: Request) {
       );
     }
 
+    const trimmedImageUrl = typeof imageUrl === "string" && imageUrl.trim() ? imageUrl.trim() : null;
+    if (trimmedImageUrl) {
+      const isValid = await validateImageUrlServer(trimmedImageUrl);
+      if (!isValid) {
+        return NextResponse.json(
+          { error: "That URL doesn't point to a valid image. Please check the link and try again." },
+          { status: 400 }
+        );
+      }
+    }
+
     const newItem = await db.item.create({
       data: {
         title,
@@ -86,7 +156,7 @@ export async function POST(req: Request) {
         type: type as ItemType,
         location,
         date: new Date(date),
-        imageUrl: imageUrl || null,
+        imageUrl: trimmedImageUrl,
         status: Status.ACTIVE,
         userId,
       },

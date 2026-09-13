@@ -7,6 +7,7 @@ import { MapPin, ArrowLeft, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getCategoryIcon } from "@/lib/category-icons";
+import { ItemDetailImage } from "@/components/item-detail-image";
 
 import { ResolveButton } from "@/components/resolve-button";
 
@@ -59,12 +60,10 @@ export default async function ItemDetailPage({
           {/* Media Box */}
           <div className="w-full aspect-[4/3] border border-outline/30 bg-surface-container-low p-1 relative overflow-hidden">
             {item.imageUrl ? (
-              <Image
+              <ItemDetailImage
                 src={item.imageUrl}
                 alt={item.title}
-                fill
-                sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover filter contrast-125"
+                category={item.category}
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-surface-container-low text-on-surface-variant">

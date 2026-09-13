@@ -5,6 +5,78 @@ import { useRouter } from "next/navigation";
 import { Category, ItemType } from "@prisma/client";
 import { AlertCircle } from "lucide-react";
 
+function isLikelyImageUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+    const path = parsed.pathname.toLowerCase();
+    return /\.(jpg|jpeg|png|gif|webp|avif|svg)$/.test(path);
+  } catch {
+    return false;
+  }
+}
+
+async function validateImageUrl(url: string): Promise<boolean> {
+  const trimmed = url.trim();
+  if (!trimmed) return true;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+  } catch {
+    return false;
+  }
+
+  // 1. Fast-path: validate file extension
+  if (isLikelyImageUrl(trimmed)) {
+    return true;
+  }
+
+  // 2. In-browser test: check if image element can load it (bypasses CORS restrictions)
+  if (typeof window !== "undefined") {
+    try {
+      const loads = await new Promise<boolean>((resolve) => {
+        const img = new window.Image();
+        const timer = setTimeout(() => {
+          img.onload = null;
+          img.onerror = null;
+          resolve(false);
+        }, 4000);
+
+        img.onload = () => {
+          clearTimeout(timer);
+          resolve(true);
+        };
+        img.onerror = () => {
+          clearTimeout(timer);
+          resolve(false);
+        };
+        img.src = trimmed;
+      });
+
+      if (loads) return true;
+    } catch {
+      // Fall through to fetch check
+    }
+  }
+
+  // 3. Fallback: HEAD request, followed by GET range 0-0
+  try {
+    let res = await fetch(trimmed, { method: "HEAD" });
+    let contentType = res.headers.get("content-type");
+    if (contentType?.startsWith("image/")) return true;
+
+    res = await fetch(trimmed, {
+      method: "GET",
+      headers: { Range: "bytes=0-0" },
+    });
+    contentType = res.headers.get("content-type");
+    return contentType?.startsWith("image/") ?? false;
+  } catch {
+    return false;
+  }
+}
+
 export function ItemForm() {
   const router = useRouter();
   const [type, setType] = useState<ItemType>(ItemType.LOST);
@@ -20,8 +92,20 @@ export function ItemForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMessage(null);
+
+    const trimmedImageUrl = imageUrl.trim();
+    if (trimmedImageUrl) {
+      setLoading(true);
+      const isValid = await validateImageUrl(trimmedImageUrl);
+      if (!isValid) {
+        setErrorMessage("That URL doesn't point to a valid image. Please check the link and try again.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/items", {
@@ -34,7 +118,7 @@ export function ItemForm() {
           type,
           location,
           date,
-          imageUrl: imageUrl.trim() || undefined,
+          imageUrl: trimmedImageUrl || undefined,
         }),
       });
 
@@ -198,6 +282,22 @@ export function ItemForm() {
             onChange={(e) => setImageUrl(e.target.value)}
             className="w-full bg-surface-container-low border border-outline/30 p-3 text-xs font-code text-primary focus:border-primary outline-none"
           />
+          {imageUrl.trim() && (
+            <div className="flex items-center gap-3 p-2 bg-surface-container-low border border-outline/30 text-xs">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl.trim()}
+                alt="Preview"
+                className="w-12 h-12 object-cover border border-outline/30 shrink-0"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+              <span className="font-code text-[11px] text-on-surface-variant truncate">
+                Previewing image link
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Submit Action */}

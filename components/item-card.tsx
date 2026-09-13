@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDate, formatTimeAgo } from "@/lib/utils";
@@ -25,6 +26,7 @@ export interface ItemCardData {
 }
 
 export function ItemCard({ item }: { item: ItemCardData }) {
+  const [imageError, setImageError] = useState(false);
   const isLost = item.type === "LOST";
 
   return (
@@ -48,20 +50,23 @@ export function ItemCard({ item }: { item: ItemCardData }) {
             </div>
           )}
 
-          {item.imageUrl ? (
+          {item.imageUrl && !imageError ? (
             <Image
               src={item.imageUrl}
               alt={item.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-on-surface-variant bg-surface-container-low p-4">
               <div className="w-10 h-10 border border-outline/30 flex items-center justify-center mb-2 bg-surface">
                 {getCategoryIcon(item.category)}
               </div>
-              <span className="font-code text-xs text-on-surface-variant">No Image</span>
+              <span className="font-code text-xs text-on-surface-variant">
+                {item.imageUrl ? "Image Unavailable" : "No Image"}
+              </span>
             </div>
           )}
         </div>

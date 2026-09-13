@@ -1,4 +1,4 @@
-name: Keep Supabase Alive
+name: Keep Services Alive
 
 on:
   schedule:
@@ -6,10 +6,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  ping:
+  ping-supabase:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Supabase
         run: |
           curl -X GET "https://arooeuwfiljmzqhcuslz.supabase.co/rest/v1/Item?limit=1" \
           -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}"
+
+  ping-upstash:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Upstash Redis
+        run: |
+          curl -X GET "${{ secrets.UPSTASH_REDIS_REST_URL }}/get/keepalive" \
+          -H "Authorization: Bearer ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"

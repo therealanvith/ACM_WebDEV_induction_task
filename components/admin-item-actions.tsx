@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { Flag, Trash2, CheckCircle, Loader2 } from "lucide-react";
 import { Status } from "@prisma/client";
@@ -13,6 +13,7 @@ interface AdminItemActionsProps {
 
 export function AdminItemActions({ itemId, currentStatus }: AdminItemActionsProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
 
   const handleFlag = async (action: "flag" | "unflag") => {
@@ -50,7 +51,12 @@ export function AdminItemActions({ itemId, currentStatus }: AdminItemActionsProp
       });
 
       if (res.ok) {
-        router.refresh();
+        if (pathname?.startsWith("/items")) {
+          router.push("/admin");
+          router.refresh();
+        } else {
+          router.refresh();
+        }
       } else {
         const err = await res.json();
         alert(`Deletion failed: ${err.error || "Server error"}`);
