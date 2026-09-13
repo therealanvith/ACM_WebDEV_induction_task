@@ -1,8 +1,9 @@
 name: Keep Supabase Alive
+
 on:
   schedule:
-    - cron: '0 0 * * *'  # runs daily at midnight UTC
-  workflow_dispatch:      # lets you trigger manually too
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   ping:
@@ -10,5 +11,5 @@ jobs:
     steps:
       - name: Ping Supabase
         run: |
-          curl -X GET "https://[YOUR_PROJECT_REF].supabase.co/rest/v1/" \
+          curl -X GET "https://arooeuwfiljmzqhcuslz.supabase.co/rest/v1/Item?limit=1" \
           -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}"
