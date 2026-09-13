@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Bell, BellRing, BellOff, Loader2 } from "lucide-react";
+import { Bell, BellRing, Loader2 } from "lucide-react";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -76,9 +76,10 @@ export function PushNotificationButton() {
         const data = await res.json();
         alert(`Failed to subscribe: ${data.error || "Server error"}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Push subscription error:", err);
-      alert(`Push Notification setup error: ${err.message || err}`);
+      const message = err instanceof Error ? err.message : String(err);
+      alert(`Push Notification setup error: ${message}`);
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { ItemCardData } from "./item-card";
 
 // Lazy load ItemCard using next/dynamic for optimal performance below the fold
 export const DynamicItemCard = dynamic(

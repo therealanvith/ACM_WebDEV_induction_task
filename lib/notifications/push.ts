@@ -73,9 +73,16 @@ export async function sendPushNotificationToUser({
         recipientId: userId,
         itemId,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If subscription is expired or invalid (HTTP 410 Gone / 404), remove from DB
-      if (err.statusCode === 410 || err.statusCode === 404) {
+      const statusCode =
+        err instanceof webPush.WebPushError
+          ? err.statusCode
+          : typeof err === "object" && err !== null && "statusCode" in err
+          ? (err as { statusCode: unknown }).statusCode
+          : undefined;
+
+      if (statusCode === 410 || statusCode === 404) {
         await db.pushSubscription.delete({ where: { id: sub.id } });
       } else {
         logEvent.error("[WEB_PUSH_FAILED] Error sending push notification", err, {

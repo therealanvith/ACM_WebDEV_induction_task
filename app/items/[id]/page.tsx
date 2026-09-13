@@ -3,7 +3,8 @@ import { getSession } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import { formatDate, formatTimeAgo } from "@/lib/utils";
 import { AdminItemActions } from "@/components/admin-item-actions";
-import { MapPin, Calendar, ArrowLeft, Shield, User } from "lucide-react";
+import { MapPin, ArrowLeft, Shield } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { getCategoryIcon } from "@/lib/category-icons";
 
@@ -58,10 +59,12 @@ export default async function ItemDetailPage({
           {/* Media Box */}
           <div className="w-full aspect-[4/3] border border-outline/30 bg-surface-container-low p-1 relative overflow-hidden">
             {item.imageUrl ? (
-              <img
+              <Image
                 src={item.imageUrl}
                 alt={item.title}
-                className="w-full h-full object-cover filter contrast-125"
+                fill
+                sizes="(max-width: 1024px) 100vw, 60vw"
+                className="object-cover filter contrast-125"
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-surface-container-low text-on-surface-variant">
@@ -175,9 +178,11 @@ export default async function ItemDetailPage({
           <div className="border border-outline/30 bg-surface-container-low p-4 sm:p-6 flex flex-col gap-4">
             <div className="flex items-center gap-3 border-b border-outline/30 pb-4">
               {item.user.image ? (
-                <img
+                <Image
                   src={item.user.image}
                   alt={item.user.name || "Reporter"}
+                  width={40}
+                  height={40}
                   className="w-10 h-10 border border-outline/30 object-cover"
                 />
               ) : (

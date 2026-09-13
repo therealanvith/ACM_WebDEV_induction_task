@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { formatDate, formatTimeAgo } from "@/lib/utils";
 import { Category, ItemType, Status } from "@prisma/client";
 import { MapPin } from "lucide-react";
@@ -48,10 +49,12 @@ export function ItemCard({ item }: { item: ItemCardData }) {
           )}
 
           {item.imageUrl ? (
-            <img
+            <Image
               src={item.imageUrl}
               alt={item.title}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-on-surface-variant bg-surface-container-low p-4">

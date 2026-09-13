@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/logger";

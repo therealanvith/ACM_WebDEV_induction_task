@@ -31,7 +31,7 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm exec prisma generate
         env:
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run ESLint
         run: pnpm run lint
@@ -42,18 +42,18 @@ jobs:
       - name: Build Next.js Application
         run: pnpm run build
         env:
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
-          NEXTAUTH_SECRET: "dummy-secret-for-ci-build"
-          NEXTAUTH_URL: "http://localhost:3000"
-          GOOGLE_CLIENT_ID: "dummy-google-id"
-          GOOGLE_CLIENT_SECRET: "dummy-google-secret"
-          BREVO_API_KEY: "dummy-brevo-api-key"
-          BREVO_SENDER_EMAIL: "notifications@example.com"
-          UPSTASH_REDIS_REST_URL: "https://dummy-upstash-url.upstash.io"
-          UPSTASH_REDIS_REST_TOKEN: "dummy-upstash-token"
-          NEXT_PUBLIC_VAPID_PUBLIC_KEY: "dummy-vapid-public-key"
-          VAPID_PRIVATE_KEY: "dummy-vapid-private-key"
-          VAPID_SUBJECT: "mailto:admin@example.com"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_SENDER_EMAIL: ${{ secrets.BREVO_SENDER_EMAIL }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
 
   security-audit:
     runs-on: ubuntu-latest

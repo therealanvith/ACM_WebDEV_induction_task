@@ -52,7 +52,7 @@ export function ItemForm() {
 
       router.push(`/items/${data.id}`);
       router.refresh();
-    } catch (err: any) {
+    } catch {
       setErrorMessage("An unexpected network error occurred. Please try again.");
       setLoading(false);
     }

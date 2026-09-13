@@ -5,7 +5,7 @@ import { sendMatchEmail } from "@/lib/notifications/email";
 import { findMatchingLostItems } from "@/lib/notifications/matcher";
 import { sendPushNotificationToUser } from "@/lib/notifications/push";
 import { checkPostRateLimit } from "@/lib/ratelimit";
-import { Category, ItemType, Status } from "@prisma/client";
+import { Category, ItemType, Prisma, Status } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   const search = searchParams.get("search");
   const statusParam = searchParams.get("status") as Status | null;
 
-  const where: any = {
+  const where: Prisma.ItemWhereInput = {
     status: statusParam || Status.ACTIVE,
   };
 

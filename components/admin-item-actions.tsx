@@ -30,8 +30,9 @@ export function AdminItemActions({ itemId, currentStatus }: AdminItemActionsProp
         const err = await res.json();
         alert(`Admin action failed: ${err.error || "Server error"}`);
       }
-    } catch (e: any) {
-      alert(`Network error: ${e.message}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "An unknown error occurred";
+      alert(`Network error: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -54,8 +55,9 @@ export function AdminItemActions({ itemId, currentStatus }: AdminItemActionsProp
         const err = await res.json();
         alert(`Deletion failed: ${err.error || "Server error"}`);
       }
-    } catch (e: any) {
-      alert(`Network error: ${e.message}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "An unknown error occurred";
+      alert(`Network error: ${message}`);
     } finally {
       setLoading(false);
     }

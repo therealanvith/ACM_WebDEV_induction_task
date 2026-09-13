@@ -31,8 +31,9 @@ export function ResolveButton({ itemId, currentStatus }: ResolveButtonProps) {
         const err = await res.json();
         alert(`Failed to update status: ${err.error || "Server error"}`);
       }
-    } catch (err: any) {
-      alert(`Network error: ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unknown error occurred";
+      alert(`Network error: ${message}`);
     } finally {
       setLoading(false);
     }

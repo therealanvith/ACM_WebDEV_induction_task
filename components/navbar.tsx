@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { PushNotificationButton } from "./push-notification-button";
@@ -64,9 +65,11 @@ export function Navbar() {
           ) : session?.user ? (
             <div className="flex items-center gap-2 pl-2 border-l border-outline/30">
               {session.user.image ? (
-                <img
+                <Image
                   src={session.user.image}
                   alt={session.user.name || "User"}
+                  width={32}
+                  height={32}
                   className="w-8 h-8 rounded border border-outline object-cover"
                 />
               ) : (
