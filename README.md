@@ -6,7 +6,7 @@ A fast, real-time Lost & Found platform built for university campuses. **Campus 
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 - **Filtered Feed & Search**: Search reports by title, location, or keywords. Instantly filter by status (`LOST` vs `FOUND`) or category (*Electronics, Documents & Cards, Accessories, Other*).
 - **Automated Match Engine**: When a user registers a `FOUND` item, the background matcher scans active `LOST` posts. If category and keywords match, it automatically sends an email alert (via Brevo) and a Web Push notification to the student who lost it.
@@ -20,7 +20,7 @@ A fast, real-time Lost & Found platform built for university campuses. **Campus 
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 15+ (App Router, Server Components)
 - **Database & ORM**: PostgreSQL (Supabase) via Prisma ORM
@@ -33,7 +33,7 @@ A fast, real-time Lost & Found platform built for university campuses. **Campus 
 
 ---
 
-## ✅ Feature-to-Code Mapping
+## Feature-to-Code Mapping
 
 | Required Feature | Implementation |
 | :--- | :--- |
@@ -57,11 +57,11 @@ A fast, real-time Lost & Found platform built for university campuses. **Campus 
 
 ---
 
-## 📦 Getting Started
+## Getting Started
 
 ### 1. Prerequisites
 - Node.js 20+
-- `pnpm` (or `npm`)
+- `pnpm`
 - A PostgreSQL database (e.g. Supabase, Neon, or local instance)
 
 ### 2. Installation
@@ -72,40 +72,51 @@ pnpm install
 ```
 
 ### 3. Environment Variables
-Copy `.env.example` to `.env` and fill in each value:
+Copy `.env.example` to `.env.local` and fill in each value:
 
 ```env
+# Database Configuration (Supabase / Neon PostgreSQL)
 DATABASE_URL="postgresql://user:password@host:port/dbname"
 
-NEXTAUTH_URL="http://localhost:3000"          # your deployed URL in production
-NEXTAUTH_SECRET="generate-with-npx-auth-secret"
+# NextAuth Configuration
+# Generate secret via: npx auth secret (or openssl rand -base64 32)
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-nextauth-secret-here"
 
-GOOGLE_CLIENT_ID="your-google-client-id"
+# Google OAuth Credentials
+# Obtain from Google Cloud Console: Credentials -> OAuth 2.0 Client IDs
+GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
+# Brevo (formerly Sendinblue) Email API Configuration
+# Obtain API key from Brevo: Settings -> SMTP & API
 BREVO_API_KEY="your-brevo-api-key"
 BREVO_SENDER_EMAIL="notifications@yourdomain.com"
 
+# Upstash Redis Configuration (Rate Limiting)
+# Obtain from Upstash Console: Redis Database -> REST API section
 UPSTASH_REDIS_REST_URL="https://your-redis-instance.upstash.io"
 UPSTASH_REDIS_REST_TOKEN="your-upstash-token"
 
-NEXT_PUBLIC_VAPID_PUBLIC_KEY="generate-with-npx-web-push-generate-vapid-keys"
-VAPID_PRIVATE_KEY="generate-with-npx-web-push-generate-vapid-keys"
-VAPID_SUBJECT="mailto:you@example.com"
+# Web Push API (VAPID Keys)
+# Generate via: npx web-push generate-vapid-keys
+NEXT_PUBLIC_VAPID_PUBLIC_KEY="your-vapid-public-key"
+VAPID_PRIVATE_KEY="your-vapid-private-key"
+VAPID_SUBJECT="mailto:admin@campus-lostfound.acm.org"
 ```
 
 Where to get each value:
-- `DATABASE_URL` — Supabase → Settings → Database → Connection string (use the pooler connection, not direct)
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google Cloud Console → Credentials → OAuth client ID
-- `NEXTAUTH_SECRET` — run `npx auth secret`
-- `UPSTASH_REDIS_REST_URL` / `TOKEN` — Upstash → your Redis database → REST API section
-- `BREVO_API_KEY` — Brevo → Settings → SMTP & API
-- VAPID keys — run `npx web-push generate-vapid-keys`
+- `DATABASE_URL` - Supabase → Settings → Database → Connection string (use the pooler connection, not direct)
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google Cloud Console → Credentials → OAuth client ID
+- `NEXTAUTH_SECRET` - run `npx auth secret`
+- `BREVO_API_KEY` / `BREVO_SENDER_EMAIL` - Brevo → Settings → SMTP & API
+- `UPSTASH_REDIS_REST_URL` / `TOKEN` - Upstash → your Redis database → REST API section
+- VAPID keys - run `npx web-push generate-vapid-keys`
 
 ### 4. Database Setup
 ```bash
-npx prisma db push
-npx prisma generate
+pnpm exec prisma db push
+pnpm exec prisma generate
 ```
 
 ### 5. Run Development Server
@@ -116,7 +127,23 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 📁 Folder Structure
+## CI/CD
+
+GitHub Actions runs on every push and pull request to any branch, via `.github/workflows/ci.yml`.
+
+**build-and-test job:**
+- Installs dependencies with pnpm (frozen lockfile)
+- Generates the Prisma client
+- Runs ESLint
+- Type-checks with `tsc --noEmit`
+- Builds the Next.js app (using dummy env values, no real secrets or database touched)
+
+**security-audit job:**
+- Runs `pnpm audit` at high severity, non-blocking
+
+Deployment itself is handled by Vercel, triggered automatically on pushes to `main`. The GitHub Actions pipeline is a pre-deploy gate for code quality, not the deployment mechanism.
+
+## Folder Structure
 
 ```
 ├── app/                  # Next.js App Router pages and API endpoints
